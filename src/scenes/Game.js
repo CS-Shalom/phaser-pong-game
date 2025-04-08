@@ -9,6 +9,7 @@ export class Game extends Scene {
     }
 
     preload() {
+        // 
     }
 
     create() {

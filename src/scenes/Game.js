@@ -13,7 +13,8 @@ export class Game extends Scene {
         this.wasd = null;
         this.cursors = null;
         
-        // Points logic this.leftScore = 0;
+        // Points logic 
+        this.leftScore = 0;
         this.rightScore = 0;
         this.leftScoreText = null; 
         this.rightScoreText = null;
@@ -91,7 +92,16 @@ export class Game extends Scene {
 
     }
 
-    hitPaddle() {
+    hitPaddle(ball, paddle) {
+        let velocityFactor = 1.3;
+        let newVelocityX = ball.body.velocity.x * velocityFactor;
+        let newVelocityY = ball.body.velocity.y * velocityFactor;
+        ball.setVelocity(newVelocityX, newVelocityY);
+
+        let angleDeviationInDeg = Phaser.Math.Between(-30, 30);
+        let angleDeviationInRad = Phaser.Math.DegToRad(angleDeviationInDeg)
+        let newVelocity = new Phaser.Math.Vector2(newVelocityX, newVelocityY).rotate(angleDeviationInRad); 
+        ball.setVelocity(newVelocity.x, newVelocity.y);
 
     }
     

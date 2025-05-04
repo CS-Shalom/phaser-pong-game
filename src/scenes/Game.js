@@ -18,6 +18,12 @@ export class Game extends Scene {
         this.rightScore = 0;
         this.leftScoreText = null; 
         this.rightScoreText = null;
+
+        // Timer logic
+        this.timerEvent = null;
+        this.timeLeft = 60;
+        this.timerText = null;
+        this.gameOver = false;
     }
 
     preload() {
@@ -25,6 +31,9 @@ export class Game extends Scene {
         this.load.image('background', 'assets/background.png');
         this.load.image('ball', 'assets/ball.png');
         this.load.image('paddle', 'assets/paddle.png');
+           // Load sound effects
+        this.load.audio('ping', 'assets/ping.mp3');
+        this.load.audio('pong', 'assets/metal.mp3');
     }
 
     create() {
@@ -52,9 +61,25 @@ export class Game extends Scene {
         });
         this.leftScoreText = this.add.text(100, 50, '0', { fontSize: '50px' }); 
         this.rightScoreText = this.add.text(924, 50, '0', { fontSize: '50px' });
+        // Timer display
+        this.timerText = this.add.text(WIDTH / 2 - 50, 50, '60', { fontSize: '50px' });
+
+        // Start timer event
+        this.timerEvent = this.time.addEvent({
+            delay: 1000,
+            callback: this.updateTimer,
+            callbackScope: this,
+            loop: true
+        });
+           // Add sound objects
+        this.pingSound = this.sound.add('ping');
+        this.pongSound = this.sound.add('pong');
+
     }
 
     update() {
+        if (this.gameOver) return;
+
         // leftPaddle movement logic
         if (this.wasd.up.isDown && this.leftPaddle.y > 0) {
             this.leftPaddle.y -= 5;
@@ -84,6 +109,23 @@ export class Game extends Scene {
         }
     }
     
+    updateTimer() {
+        if (this.timeLeft > 0) {
+            this.timeLeft--;
+            this.timerText.setText(this.timeLeft);
+        }
+        if (this.timeLeft <= 0) {
+            this.endGame();
+        }
+    }
+
+    endGame() {
+        this.gameOver = true;
+        this.ball.setVelocity(0, 0);
+        this.timerText.setText('Time\'s up!');
+        this.add.text(WIDTH / 2 - 150, HEIGHT / 2, 'Game Over', { fontSize: '70px', color: '#ff0000' });
+    }
+
     startBall() {
         if (!this.ballInMotion) { // checks flag to determine if ball is NOT in motion // ... (code to set ball in motion)
             this.ball.setVelocity(200, 200);
@@ -102,6 +144,12 @@ export class Game extends Scene {
         let angleDeviationInRad = Phaser.Math.DegToRad(angleDeviationInDeg)
         let newVelocity = new Phaser.Math.Vector2(newVelocityX, newVelocityY).rotate(angleDeviationInRad); 
         ball.setVelocity(newVelocity.x, newVelocity.y);
+            // Play sound depending on which paddle was hit
+        if (paddle === this.leftPaddle) {
+            this.pingSound.play();
+        } else if (paddle === this.rightPaddle) {
+            this.pongSound.play();
+        }
 
     }
     
